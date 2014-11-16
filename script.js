@@ -1,6 +1,6 @@
-var screenEl = document.getElementById('screen')
+var screenEl = document.getElementById('screen');
 
-var countDigital = 6;
+var countDigital = 5;
 
 // промежуточные данные
 var calcValues = {
@@ -15,25 +15,27 @@ var currentState = new FirstArgState();
 //Callbacks
 
 var onNum = function (num) {
-	currentState.concatNum(num);
-	console.log("calcValues.firstArg = " + calcValues.firstArg);
-	console.log("calcValues.secondArg = " + calcValues.secondArg);
+	currentState.appendNum(num);
 };
 
 var onAdd = function () {
-	currentState.doOperation(addOperation);
+	console.log("operation +");
+	currentState.setOperation(addOperation);
 };
 
 var onSub = function () {
-	currentState.doOperation(subOperation);
+	console.log("operation -");
+	currentState.setOperation(subOperation);
 };
 
 var onMul = function () {
-	currentState.doOperation(mulOperation);
+	console.log("operation *");
+	currentState.setOperation(mulOperation);
 };
 
 var onDiv = function () {
-	currentState.doOperation(divOperation);
+	console.log("operation /");
+	currentState.setOperation(divOperation);
 };
 
 var onCompute = function () {
@@ -45,14 +47,46 @@ var onReset = function () {
 	printValue(0);
 };
 
-//TODO сделать отсечение числа для экрана калькулятора
 var printValue = function (value) {
-	screenEl.innerHTML = value;
+	console.log("real value = " + value);
+	if (value === Infinity) {
+		screenEl.innerHTML = "ERROR"
+	} else {
+		var lengthInt = countDigital;
+		var lengthFract = 0;
+		var degree = 0;
+
+		if (value !== Math.floor(value)) {
+			lengthFract = 2;
+			// приведение к мантиссе, если модуль числа слишком маленький
+			if (Math.abs(value) < 0.1) {
+				while (Math.abs(value) < 1) {
+					degree--;
+					value *= 10;
+				}
+			}
+		}
+
+		// приведение к мантиссе, если модуль числа слишком большой
+		if (Math.abs(value) > Math.pow(10, lengthInt - lengthFract) || degree < 0) {
+			while (Math.abs(value) >= 10) {
+				degree++;
+				value /= 10;
+			}
+		}
+
+		if (degree == 0) {
+			screenEl.innerHTML = value.toString().substr(0, countDigital + 1);
+		} else {
+			screenEl.innerHTML = Math.round(value) + "E" + degree;
+		}
+	}
 };
 
-// общие функции
 
-var concatNumberWithArg = function (num, calcArg) {
+// Общие функции
+
+var appendNumberToArgument = function (num, calcArg) {
 	if (calcValues[calcArg] < Math.pow(10, countDigital - 1)) {
 		calcValues[calcArg] *= 10;
 		calcValues[calcArg] += num;
@@ -103,22 +137,26 @@ function divOperation(first, second) {
 
 // Ввод первого аргумента
 function FirstArgState() {
-	this.concatNum = function (num) {
-		concatNumberWithArg(num, "firstArg");
+	// выбрана цифра -> добавить к первому аргументу
+	this.appendNum = function (num) {
+		appendNumberToArgument(num, "firstArg");
 	};
 
-	this.doOperation = function (operation) {
+	// выбрана операция -> перейти в OperationState
+	this.setOperation = function (operation) {
 		changeState(new OperationState(operation));
 	};
 }
 
 // Ввод второго аргумента
 function SecondArgState() {
-	this.concatNum = function (num) {
-		concatNumberWithArg(num, "secondArg");
+	// выбрана цифра -> добавить ко второму аргументу
+	this.appendNum = function (num) {
+		appendNumberToArgument(num, "secondArg");
 	};
 
-	this.doOperation = function (operation) {
+	// выбрана операция -> вычислить и перейти в OperationState
+	this.setOperation = function (operation) {
 		computeNum();
 		changeState(new OperationState(operation));
 	};
@@ -128,31 +166,33 @@ function SecondArgState() {
 function OperationState(operation) {
 	calcValues.operation = operation;
 
-	this.concatNum = function (num) {
+	//выбрана цифра -> перейти в SecondArgState и добавить цифру ко второму аргументу
+	this.appendNum = function (num) {
 		changeState(new SecondArgState());
-		currentState.concatNum(num);
+		currentState.appendNum(num);
 	};
 
-	this.doOperation = function (operation) {
+	// выбрана операция -> сменить операцию
+	this.setOperation = function (operation) {
 		calcValues.operation = operation;
 	};
 }
 
 // Результат
 function ResultState() {
-	this.concatNum = function (num) {
+	// выбрана цифра -> сбросить калькулятор и добавить цифру к первому аргументу
+	this.appendNum = function (num) {
 		resetCalc();
-		currentState.concatNum(num);
+		currentState.appendNum(num);
 	};
 
-	this.doOperation = function (operation) {
+	// выбрана операция -> перейти в OperationState
+	this.setOperation = function (operation) {
 		changeState(new OperationState(operation));
 	};
 }
 
 // Смена состояния
 function changeState(newState) {
-	delete currentState;
 	currentState = newState;
-	console.log("changeState -> " + currentState.toString());
 }
