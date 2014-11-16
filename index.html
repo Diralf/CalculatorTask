@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <link rel="stylesheet" href="style.css">
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  </head>
+
+  <body>
+    <div class="calc">
+      <div id="screen" class="screen">0</div>
+      <div class="button-board">
+        <div class="num-pad">
+          <div class="row">
+            <div class="btn" onclick="onNum(7)">7</div>
+            <div class="btn" onclick="onNum(8)">8</div>
+            <div class="btn" onclick="onNum(9)">9</div>
+            <div class="btn op-btn" onclick="onCompute()">=</div>
+          </div>
+          <div class="row">
+            <div class="btn" onclick="onNum(4)">4</div>
+            <div class="btn" onclick="onNum(5)">5</div>
+            <div class="btn" onclick="onNum(6)">6</div>
+            <div class="btn op-btn" onclick="onAdd()">+</div>
+          </div>
+          <div class="row">
+            <div class="btn" onclick="onNum(1)">1</div>
+            <div class="btn" onclick="onNum(2)">2</div>
+            <div class="btn" onclick="onNum(3)">3</div>
+            <div class="btn op-btn" onclick="onSub()">-</div>
+          </div>
+          <div class="row">
+            <div class="btn" onclick="onNum(0)">0</div>
+            <div class="btn op-btn" onclick="onMul()">*</div>
+            <div class="btn op-btn" onclick="onDiv()">/</div>
+            <div class="btn c-btn" onclick="onReset()">C</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+  
+</html>
