@@ -20,6 +20,7 @@ var onNum = function (num) {
 
 var onAdd = function () {
 	console.log("operation +");
+	alert("PLUSS")
 	currentState.setOperation(addOperation);
 };
 
